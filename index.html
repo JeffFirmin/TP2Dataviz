@@ -25,15 +25,17 @@
       .attr("width", width)
       .attr("height", height);
 
+    /*var dataValue = parseInt(data[i].hosp);*/
+
     // On rajoute un groupe englobant toute la visualisation pour plus tard
     var g = svg.append("g");
 
     // Autres projections : geoMercator, geoNaturalEarth1, ...
     // https://github.com/d3/d3-geo/blob/master/README.md
-    var projection = d3
+    /*var projection = d3
       .geoAlbersUsa()
       .translate([width / 2, height / 2])
-      .scale([500]);
+      .scale([500]);*/
 
     // On definie une echelle de couleur
     // via https://observablehq.com/@d3/color-schemes?collection=@d3/d3-scale-chromatic
@@ -67,7 +69,7 @@
           console.log(dataState);
 
           //Valeur associee a l'etat
-          var dataValue = parseFloat(data[i].value);
+          var dataValue = parseFloat(data[i].hosp);
 
           //Recherche de l'etat dans le GeoJSON
           for (var j = 0; j < json.features.length; j++) {
