@@ -25,7 +25,7 @@
       .attr("width", width)
       .attr("height", height);
 
-    /*var dataValue = parseInt(data[i].hosp);*/
+    var jourChoisi = "2021-09-12"; // pour demarrer on code en dur un jour a afficher
 
     // On rajoute un groupe englobant toute la visualisation pour plus tard
     var g = svg.append("g");
@@ -33,9 +33,9 @@
     // Autres projections : geoMercator, geoNaturalEarth1, ...
     // https://github.com/d3/d3-geo/blob/master/README.md
     /*var projection = d3
-      .geoAlbersUsa()
-      .translate([width / 2, height / 2])
-      .scale([500]);*/
+          .geoAlbersUsa()
+          .translate([width / 2, height / 2])
+          .scale([500]);*/
 
     // On definie une echelle de couleur
     // via https://observablehq.com/@d3/color-schemes?collection=@d3/d3-scale-chromatic
@@ -50,40 +50,39 @@
     var path = d3.geoPath().projection(projection);
 
     // Chargement des donnees
-    d3.csv("covid-06-11-2021.csv").then(function (data) {
-      //Set input domain for color scale
+    d3.csv("covid.csv").then(function (data) {
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+      var cleanData = data.filter((d) => {
+        return d.sexe == 0;
+      }); // TODO ne garder que les lignes ou (sexe == 0)
+
       color.domain([
         d3.min(data, function (d) {
-          return d.value;
+          return d.hosp;
         }),
         d3.max(data, function (d) {
-          return d.value;
+          return d.hosp;
         })
       ]);
 
       d3.json("departements-version-simplifiee.geojson").then(function (json) {
-        //On fusionne les donnees avec le GeoJSON
-        for (var i = 0; i < data.length; i++) {
-          //Nom de l'etat
-          var dataState = data[i].state;
-          console.log(dataState);
+        //On fusionne les donnees avec le GeoJSON des departements
 
-          //Valeur associee a l'etat
-          var dataValue = parseFloat(data[i].hosp);
-
-          //Recherche de l'etat dans le GeoJSON
-          for (var j = 0; j < json.features.length; j++) {
-            var jsonState = json.features[j].properties.name;
-            if (dataState == jsonState) {
-              //On injecte la valeur de l'Etat dans le json
-              json.features[j].properties.value = dataValue;
-
-              //Pas besoin de chercher plus loin
-              break;
-            }
-          }
+        //On parcours les departements du GeoJSON un par un
+        for (var j = 0; j < json.features.length; j++) {
+          var departement = json.features[j].properties.code; // TODO
+          // find permet d'eviter de faire une boucle sur toutes les donnees
+          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find#find_an_object_in_an_array_by_one_of_its_properties
+          var jourDepChoisi = cleanData.find(function (row) {
+            return (departement = row.dep && jourChoisi == row.jour); // find renvoie la ligne du tableau si la fonction qu'on lui passe en argument renvoie True.
+          });
+          var dataValue = parseInt(data[j].hosp);
+          json.features[j].properties.value = parseInt(dataValue);
         }
-        g.selectAll("path")
+
+        // on dessine
+        svg
+          .selectAll("path")
           .data(json.features)
           .join("path")
           .attr("d", path)
