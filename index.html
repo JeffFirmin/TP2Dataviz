@@ -30,6 +30,11 @@
     // On rajoute un groupe englobant toute la visualisation pour plus tard
     var g = svg.append("g");
 
+    var tooltip = d3
+      .select("body")
+      .append("div")
+      .attr("class", "hidden tooltip");
+
     // Autres projections : geoMercator, geoNaturalEarth1, ...
     // https://github.com/d3/d3-geo/blob/master/README.md
     /*var projection = d3
@@ -96,6 +101,25 @@
               // si pas de valeur alors en gris
               return "#ccc";
             }
+          })
+          .on("mousemove", function (e, d) {
+            var mousePosition = [e.x, e.y];
+            console.log(mousePosition);
+            tooltip
+              .classed("hidden", false)
+              .attr(
+                "style",
+                "left:" +
+                  (mousePosition[0] + 15) +
+                  "px; top:" +
+                  (mousePosition[1] - 35) +
+                  "px"
+              )
+              .html(d.properties.code);
+          })
+          .on("mouseout", function () {
+            // on cache le toolip
+            tooltip.classed("hidden", true);
           });
       });
     });
