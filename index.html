@@ -25,6 +25,17 @@
 </head>
 
 <body>
+  <div>
+    <input
+      id="slider"
+      type="range"
+      value="0"
+      min="0"
+      max="177"
+      step="1"
+    /><br />
+    <span id="day">day</span>
+  </div>
   <script>
     var width = 700,
       height = 580;
@@ -96,8 +107,13 @@
         }
 
         // on dessine
-
         drawMap(0, json);
+        d3.select("#day").html(0);
+        d3.select("#slider").on("input", function () {
+          drawMap(+this.value, json);
+
+          d3.select("#day").html(+this.value);
+        });
       });
     });
 
