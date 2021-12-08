@@ -89,49 +89,61 @@
           // find permet d'eviter de faire une boucle sur toutes les donnees
           // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/find#find_an_object_in_an_array_by_one_of_its_properties
           var jourDepChoisi = cleanData.filter(function (row) {
-            return (departement = row.dep); // find renvoie la ligne du tableau si la fonction qu'on lui passe en argument renvoie True.
+            return departement == row.dep; // find renvoie la ligne du tableau si la fonction qu'on lui passe en argument renvoie True.
           });
-          var dataValue = parseInt(data[j].hosp);
-          json.features[j].properties.value = parseInt(dataValue);
+
+          json.features[j].properties.value = jourDepChoisi;
         }
 
         // on dessine
-        svg
-          .selectAll("path")
-          .data(json.features)
-          .join("path")
-          .attr("d", path)
-          .style("fill", function (d) {
-            //on prend la valeur recupere plus haut
-            var value = d.properties.value;
 
-            if (value) {
-              return color(value);
-            } else {
-              // si pas de valeur alors en gris
-              return "#ccc";
-            }
-          })
-          .on("mousemove", function (e, d) {
-            var mousePosition = [e.x, e.y];
-            console.log(mousePosition);
-            tooltip
-              .classed("hidden", false)
-              .attr(
-                "style",
-                "left:" +
-                  (mousePosition[0] + 15) +
-                  "px; top:" +
-                  (mousePosition[1] - 35) +
-                  "px"
-              )
-              .html(d.properties.nom + " " + d.properties.code);
-          })
-          .on("mouseout", function () {
-            // on cache le toolip
-            tooltip.classed("hidden", true);
-          });
+        drawMap(0, json);
       });
     });
+
+    function drawMap(currentDay, json) {
+      console.log("0");
+      svg
+        .selectAll("path")
+        .data(json.features)
+        .join("path")
+        .attr("d", path)
+        .style("fill", function (d) {
+          //on prend la valeur recupere plus haut
+          var value = d.properties.value[currentDay].hosp;
+
+          if (value) {
+            return color(value);
+          } else {
+            // si pas de valeur alors en gris
+            return "#ccc";
+          }
+        })
+        .on("mousemove", function (e, d) {
+          var mousePosition = [e.x, e.y];
+          console.log(mousePosition);
+          tooltip
+            .classed("hidden", false)
+            .attr(
+              "style",
+              "left:" +
+                (mousePosition[0] + 15) +
+                "px; top:" +
+                (mousePosition[1] - 35) +
+                "px"
+            )
+            .html(
+              d.properties.nom +
+                " " +
+                d.properties.code +
+                " " +
+                d.properties.value[currentDay].hosp
+            );
+        })
+        .on("mouseout", function () {
+          // on cache le toolip
+          tooltip.classed("hidden", true);
+        });
+    }
   </script>
 </body>
